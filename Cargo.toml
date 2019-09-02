@@ -1,0 +1,23 @@
+[package]
+name = "newbot"
+version = "0.1.0"
+authors = ["iliana destroyer of worlds <iliana@buttslol.net>"]
+edition = "2018"
+license = "GPL-3.0-or-later"
+publish = false
+default-run = "newbot"
+
+[profile.release]
+lto = true
+debug = 1
+
+[dependencies]
+dotenv = "0.14"
+elefren = { version = "0.20", default-features = false, features = ["rustls-tls"] }
+envy = "0.4"
+failure = "0.1"
+rand = "0.7"
+unic-emoji-char = "0.9"
+
+[patch.crates-io]
+elefren = { git = "https://github.com/iliana/elefren.git", branch = "rustls" }
