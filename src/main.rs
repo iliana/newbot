@@ -7,8 +7,10 @@ mod emoji;
 use elefren::scopes::{Scopes, Write};
 use elefren::status_builder::{StatusBuilder, Visibility};
 use elefren::{Data, Mastodon, MastodonClient, Registration};
-use failure::{Fallible, ResultExt, SyncFailure};
+use failure::{Compat, Error, Fallible, ResultExt, SyncFailure};
+use lambda_runtime::{lambda, Context};
 use rand::{thread_rng, Rng};
+use serde::Deserialize;
 use std::borrow::Cow;
 use std::env;
 use std::io::{self, Write as _};
@@ -72,19 +74,34 @@ fn send_toot() -> Fallible<()> {
 
     let status = StatusBuilder::new()
         .status(format!(":newl:{}{}{}:newr:", ZWS, emoji, ZWS))
-        .visibility(Visibility::Direct)
+        .visibility(if env::var_os("NEWBOT_LIVE_MODE").is_some() {
+            Visibility::Unlisted
+        } else {
+            Visibility::Direct
+        })
         .build()
         .map_err(SyncFailure::new)?;
     mastodon.new_status(status).map_err(SyncFailure::new)?;
     Ok(())
 }
 
-fn main() -> Fallible<()> {
-    dotenv::dotenv().ok();
+#[derive(Deserialize)]
+struct EmptyEvent {}
 
-    if env::var_os("NEWBOT_SETUP_MODE").is_some() {
-        setup()
+fn handler(_: EmptyEvent, _: Context) -> Result<(), Compat<Error>> {
+    send_toot().map_err(Error::compat)
+}
+
+fn main() -> Fallible<()> {
+    if env::var_os("AWS_LAMBDA_RUNTIME_API").is_some() {
+        lambda!(handler);
+        Ok(())
     } else {
-        send_toot()
+        dotenv::dotenv().ok();
+        if env::var_os("NEWBOT_SETUP_MODE").is_some() {
+            setup()
+        } else {
+            send_toot()
+        }
     }
 }
