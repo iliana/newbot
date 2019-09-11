@@ -33,12 +33,25 @@ enum Classification {
     Base(char),
     Role(char),
     Independent(String),
-    GeopoliticalFlag,
     Couple,
     Family,
     HoldingHands,
     Kiss,
     Duplicate,
+    GeopoliticalFlag,
+    ACAB,
+}
+
+impl Classification {
+    fn included(&self) -> bool {
+        match self {
+            Classification::Duplicate
+            | Classification::GeopoliticalFlag
+            | Classification::ACAB
+            | Classification::Base('\u{1f46e}') => false,
+            _ => true,
+        }
+    }
 }
 
 fn main() {
@@ -53,9 +66,7 @@ fn main() {
         let path = entry.unwrap().path();
         let emoji = emoji_from_file_name(path.file_name().unwrap().to_str().unwrap());
         let classification = classify(&emoji);
-        if !(classification == Classification::Duplicate
-            || classification == Classification::GeopoliticalFlag)
-        {
+        if classification.included() {
             map.entry(classification).or_default().insert(emoji);
         }
     }
@@ -132,6 +143,12 @@ fn classify(emoji: &str) -> Classification {
         }
     } else if emoji == "\u{1f46a}" || emoji == "\u{1f48f}" || emoji == "\u{1f491}" {
         Classification::Duplicate
+    } else if emoji == "\u{1f693}"
+        || emoji == "\u{1f694}"
+        || emoji == "\u{1f6c2}"
+        || emoji == "\u{1f6c3}"
+    {
+        Classification::ACAB
     } else if (0x1f46b..=0x1f46d).contains(&(emoji.chars().next().unwrap() as u32)) {
         Classification::HoldingHands
     } else if (emoji.chars().count() == 2
