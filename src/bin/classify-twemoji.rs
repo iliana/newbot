@@ -45,10 +45,9 @@ enum Classification {
 impl Classification {
     fn included(&self) -> bool {
         match self {
-            Classification::Duplicate
-            | Classification::GeopoliticalFlag
-            | Classification::ACAB
-            | Classification::Base('\u{1f46e}') => false,
+            Self::Duplicate | Self::GeopoliticalFlag | Self::ACAB | Self::Base('\u{1f46e}') => {
+                false
+            }
             _ => true,
         }
     }
