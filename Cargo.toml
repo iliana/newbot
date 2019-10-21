@@ -12,7 +12,7 @@ lto = true
 debug = 1
 
 [dependencies]
-dotenv = "0.14"
+dotenv = "0.15"
 elefren = { version = "0.20", default-features = false, features = ["rustls-tls"] }
 envy = "0.4"
 failure = "0.1"
