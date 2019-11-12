@@ -1,0 +1,22 @@
+name: Test
+on:
+  pull_request:
+    branches: [🤖]
+env:
+  RUST_BACKTRACE: full
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/checkout@v1
+        with:
+          repository: twitter/twemoji
+          ref: v12.1.3
+          fetch-depth: 1
+          path: twemoji
+      - run: cargo check --locked --verbose
+      - run: diff -u src/emoji.rs <(cargo run --no-default-features --features unic-emoji-char --locked --verbose --bin classify-twemoji -- ../twemoji/assets/svg)
+      - run: sudo apt-get install -y musl-tools
+      - run: rustup target add x86_64-unknown-linux-musl
+      - run: cargo test --locked --no-default-features --verbose --release --target x86_64-unknown-linux-musl
