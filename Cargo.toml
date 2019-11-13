@@ -7,19 +7,31 @@ license = "GPL-3.0-or-later"
 publish = false
 default-run = "newbot"
 
+[dependencies]
+dotenv = "0.15"
+elefren = { version = "0.20", optional = true, default-features = false, features = ["rustls-tls"] }
+failure = "0.1"
+minreq = { version = "2.0.0-alpha.2", features = ["https", "json-using-serde"] }
+rand = "0.7"
+serde = { version = "1", features = ["derive"] }
+unic-emoji-char = { version = "0.9", optional = true }
+
+[patch.crates-io]
+elefren = { git = "https://github.com/pwoolcoc/elefren.git" }
+
+[features]
+default = ["elefren", "unic-emoji-char"]
+
 [profile.release]
 lto = true
 debug = 1
 
-[dependencies]
-dotenv = "0.15"
-elefren = { version = "0.20", default-features = false, features = ["rustls-tls"] }
-envy = "0.4"
-failure = "0.1"
-lambda_runtime = "0.2"
-rand = "0.7"
-serde = { version = "1.0", features = ["derive"] }
-unic-emoji-char = "0.9"
+[[bin]]
+name = "classify-twemoji"
+path = "src/bin/classify-twemoji.rs"
+required-features = ["unic-emoji-char"]
 
-[patch.crates-io]
-elefren = { git = "https://github.com/pwoolcoc/elefren.git" }
+[[bin]]
+name = "newbot-setup"
+path = "src/bin/setup.rs"
+required-features = ["elefren"]
