@@ -11,7 +11,7 @@ default-run = "newbot"
 dotenv = "0.15"
 elefren = { version = "0.20", optional = true, default-features = false, features = ["rustls-tls"] }
 failure = "0.1"
-minreq = { version = "2.0.0-alpha.2", features = ["https", "json-using-serde"] }
+minreq = { version = "2.0.0", features = ["https", "json-using-serde"] }
 rand = "0.7"
 serde = { version = "1", features = ["derive"] }
 unic-emoji-char = { version = "0.9", optional = true }
