@@ -2,6 +2,8 @@ name: Test
 on:
   pull_request:
     branches: [🤖]
+  push:
+    branches: [try]
 env:
   RUST_BACKTRACE: full
 jobs:
