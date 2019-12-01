@@ -19,6 +19,7 @@ jobs:
           path: twemoji
       - run: sudo apt-get install -y musl-tools
       - run: rustup target add x86_64-unknown-linux-musl
+      - run: cargo fmt -- --check
       - run: cargo check --locked --target x86_64-unknown-linux-musl
       - run: diff -u src/emoji.rs <(cargo run --no-default-features --features unic-emoji-char --locked --target x86_64-unknown-linux-musl --bin classify-twemoji -- ../twemoji/assets/svg)
       - run: cargo test --locked --no-default-features --target x86_64-unknown-linux-musl
