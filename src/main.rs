@@ -4,7 +4,7 @@
 
 mod emoji;
 
-use failure::{err_msg, Fallible, ResultExt};
+use failure::{err_msg, Fallible};
 use rand::{thread_rng, Rng};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
@@ -39,10 +39,8 @@ struct LambdaInvocationError {
 
 fn draft_toot(base: &str) -> Fallible<NewStatus> {
     let emojos: Vec<Emoji> = minreq::get(format!("{}/api/v1/custom_emojis", base))
-        .send()
-        .context("failed to request /api/v1/custom_emojis")?
-        .json()
-        .context("failed to parse /api/v1/custom_emojis")?;
+        .send()?
+        .json()?;
 
     let n = thread_rng().gen_range(0, emoji::EMOJI_SETS.len() + emojos.len());
     let emoji = if n < emoji::EMOJI_SETS.len() {
@@ -71,22 +69,18 @@ fn send_toot(base: &str, token: &str) -> Fallible<()> {
     let status = draft_toot(base)?;
     minreq::post(format!("{}/api/v1/statuses", base))
         .with_header("authorization", format!("Bearer {}", token))
-        .with_json(&status)
-        .with_context(|_| format!("failed to serialize {:?}", status))?
-        .send()
-        .with_context(|_| format!("failed to post {:?} to /api/v1/statuses", status))?;
+        .with_json(&status)?
+        .send()?;
     Ok(())
 }
 
 fn lambda(base: &str, token: &str) -> Fallible<()> {
-    let runtime_api =
-        env::var("AWS_LAMBDA_RUNTIME_API").context("failed to read AWS_LAMBDA_RUNTIME_API")?;
+    let runtime_api = env::var("AWS_LAMBDA_RUNTIME_API")?;
     let response = minreq::get(format!(
         "http://{}/2018-06-01/runtime/invocation/next",
         runtime_api
     ))
-    .send()
-    .context("failed to get next invocation")?;
+    .send()?;
     let request_id = response
         .headers
         .get("lambda-runtime-aws-request-id")
@@ -98,10 +92,8 @@ fn lambda(base: &str, token: &str) -> Fallible<()> {
                 "http://{}/2018-06-01/runtime/invocation/{}/response",
                 runtime_api, request_id
             ))
-            .with_json(&())
-            .with_context(|_| format!("failed to serialize {:?}", ()))?
-            .send()
-            .context("failed to post invocation response")?;
+            .with_json(&())?
+            .send()?;
         }
         Err(err) => {
             eprintln!("{:?}", err);
@@ -113,18 +105,16 @@ fn lambda(base: &str, token: &str) -> Fallible<()> {
                 "http://{}/2018-06-01/runtime/invocation/{}/error",
                 runtime_api, request_id
             ))
-            .with_json(&body)
-            .with_context(|_| format!("failed to serialize {:?}", body))?
-            .send()
-            .context("failed to post invocation error")?;
+            .with_json(&body)?
+            .send()?;
         }
     };
     Ok(())
 }
 
 fn load_env() -> Fallible<(String, String)> {
-    let base = env::var("NEWBOT_BASE").context("failed to read NEWBOT_BASE")?;
-    let token = env::var("NEWBOT_TOKEN").context("failed to read NEWBOT_TOKEN")?;
+    let base = env::var("NEWBOT_BASE")?;
+    let token = env::var("NEWBOT_TOKEN")?;
     Ok((base, token))
 }
 
