@@ -70,7 +70,7 @@ fn draft_toot(base: &str) -> Fallible<NewStatus> {
 fn send_toot(base: &str, token: &str) -> Fallible<()> {
     let status = draft_toot(base)?;
     minreq::post(format!("{}/api/v1/statuses", base))
-        .with_header("Authorization", format!("Bearer {}", token))
+        .with_header("authorization", format!("Bearer {}", token))
         .with_json(&status)
         .with_context(|_| format!("failed to serialize {:?}", status))?
         .send()
@@ -89,10 +89,8 @@ fn lambda(base: &str, token: &str) -> Fallible<()> {
     .context("failed to get next invocation")?;
     let request_id = response
         .headers
-        .iter()
-        .find(|(name, _)| name.eq_ignore_ascii_case("Lambda-Runtime-Aws-Request-Id"))
-        .ok_or_else(|| err_msg("header Lambda-Runtime-Aws-Request-Id missing"))?
-        .1;
+        .get("lambda-runtime-aws-request-id")
+        .ok_or_else(|| err_msg("header lambda-runtime-aws-request-id missing"))?;
 
     match send_toot(&base, &token) {
         Ok(()) => {
