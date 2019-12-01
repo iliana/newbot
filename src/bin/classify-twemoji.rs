@@ -78,12 +78,12 @@ fn main() {
     for set in map.values() {
         if set.len() == 1 {
             for emoji in set {
-                println!("    &[\"{}\"],", emoji.escape_unicode());
+                println!("    &[\"{}\"], // {}", emoji.escape_unicode(), emoji);
             }
         } else {
             println!("    &[");
             for emoji in set {
-                println!("        \"{}\",", emoji.escape_unicode());
+                println!("        \"{}\", // {}", emoji.escape_unicode(), emoji);
             }
             println!("    ],");
         }
