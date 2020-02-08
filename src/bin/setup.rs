@@ -2,7 +2,7 @@
 
 #![warn(clippy::pedantic)]
 
-use failure::Fallible;
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::io::{self, Write as _};
@@ -19,7 +19,7 @@ struct App {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Client {
+struct ClientPair {
     client_id: String,
     client_secret: String,
 }
@@ -35,7 +35,7 @@ struct Authorization<'a> {
 #[derive(Debug, Serialize)]
 struct TokenRequest<'a> {
     #[serde(flatten)]
-    client: &'a Client,
+    client: &'a ClientPair,
     code: &'a str,
     grant_type: &'static str,
     redirect_uri: &'static str,
@@ -46,22 +46,27 @@ struct Token {
     access_token: String,
 }
 
-fn main() -> Fallible<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let base = env::var("NEWBOT_BASE")?;
-    let client: Client = minreq::post(format!("{}/api/v1/apps", base))
-        .with_json(&App {
+    let client = reqwest::Client::new();
+    let pair: ClientPair = client
+        .post(&format!("{}/api/v1/apps", base))
+        .json(&App {
             client_name: "newbot",
             redirect_uris: REDIRECT_URI,
             scopes: SCOPE,
             website: "https://github.com/iliana/newbot",
-        })?
-        .send()?
-        .json()?;
+        })
+        .send()
+        .await?
+        .json()
+        .await?;
     let url = format!(
         "{}/oauth/authorize?{}",
         base,
         serde_urlencoded::to_string(&Authorization {
-            client_id: &client.client_id,
+            client_id: &pair.client_id,
             redirect_uri: REDIRECT_URI,
             scope: SCOPE,
             response_type: "code",
@@ -77,13 +82,13 @@ fn main() -> Fallible<()> {
         "{}/oauth/token?{}",
         base,
         serde_urlencoded::to_string(&TokenRequest {
-            client: &client,
+            client: &pair,
             code: code.trim(),
             grant_type: "authorization_code",
             redirect_uri: REDIRECT_URI,
         })?
     );
-    let token: Token = minreq::post(url).send()?.json()?;
+    let token: Token = client.post(&url).send().await?.json().await?;
 
     println!("NEWBOT_BASE={}", base);
     println!("NEWBOT_TOKEN={}", token.access_token);

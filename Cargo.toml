@@ -8,13 +8,18 @@ publish = false
 default-run = "newbot"
 
 [dependencies]
-dotenv = "0.15"
-failure = "0.1"
-minreq = { version = "2", features = ["https", "json-using-serde"] }
+anyhow = "1"
+lambda = { git = "https://github.com/awslabs/aws-lambda-rust-runtime", branch = "async-await" }
+lazy_static = "1"
 rand = "0.7"
+reqwest = { version = "0.10", default-features = false, features = ["rustls-tls", "gzip", "json"] }
 serde = { version = "1", features = ["derive"] }
 serde_urlencoded = { version = "0.6", optional = true }
+tokio = "0.2"
 unic-emoji-char = { version = "0.9", optional = true }
+
+[dev-dependencies]
+dotenv = "0.15"
 
 [features]
 default = ["serde_urlencoded", "unic-emoji-char"]

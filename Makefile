@@ -1,6 +1,6 @@
 lambda.zip: target/x86_64-unknown-linux-musl/release/newbot
 	cp $< bootstrap
-	objcopy --compress-debug-sections bootstrap
+	strip bootstrap
 	ls -l bootstrap
 	rm -f lambda.zip
 	zip lambda.zip bootstrap
