@@ -8,32 +8,15 @@ publish = false
 default-run = "newbot"
 
 [dependencies]
-anyhow = "1"
-lambda = { git = "https://github.com/awslabs/aws-lambda-rust-runtime", branch = "async-await" }
-lazy_static = "1"
-rand = "0.7"
-reqwest = { version = "0.10", default-features = false, features = ["rustls-tls", "gzip", "json"] }
+minlambda = "0.2"
+minreq = { version = "2", features = ["https-native", "json-using-serde"] }
+rand = "0.8"
 serde = { version = "1", features = ["derive"] }
-serde_urlencoded = { version = "0.6", optional = true }
-tokio = "0.2"
-unic-emoji-char = { version = "0.9", optional = true }
-
-[dev-dependencies]
-dotenv = "0.15"
-
-[features]
-default = ["serde_urlencoded", "unic-emoji-char"]
+unic-emoji-char = "0.9"
 
 [profile.release]
 lto = true
-debug = 1
 
 [[bin]]
 name = "classify-twemoji"
 path = "src/bin/classify-twemoji.rs"
-required-features = ["unic-emoji-char"]
-
-[[bin]]
-name = "newbot-setup"
-path = "src/bin/setup.rs"
-required-features = ["serde_urlencoded"]
