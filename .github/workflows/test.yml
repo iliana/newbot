@@ -11,14 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: actions/checkout@v1
-        with:
-          repository: twitter/twemoji
-          ref: v12.1.5
-          fetch-depth: 1
-          path: twemoji
       - run: rustup update stable
       - run: cargo fmt -- --check
       - run: cargo clippy --locked
-      - run: diff -u src/emoji.rs <(cargo run --locked --bin classify-twemoji -- ../twemoji/assets/svg)
       - run: cargo test --locked

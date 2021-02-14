@@ -5,18 +5,12 @@ authors = ["iliana destroyer of worlds <iliana@buttslol.net>"]
 edition = "2018"
 license = "GPL-3.0-or-later"
 publish = false
-default-run = "newbot"
+
+[profile.release]
+lto = true
 
 [dependencies]
 minlambda = "0.2"
 minreq = { version = "2", features = ["https-native", "json-using-serde"] }
 rand = "0.8"
 serde = { version = "1", features = ["derive"] }
-unic-emoji-char = "0.9"
-
-[profile.release]
-lto = true
-
-[[bin]]
-name = "classify-twemoji"
-path = "src/bin/classify-twemoji.rs"

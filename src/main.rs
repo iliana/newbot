@@ -2,7 +2,9 @@
 
 #![warn(clippy::pedantic)]
 
-mod emoji;
+mod emoji {
+    include!(concat!(env!("OUT_DIR"), "/emoji.rs"));
+}
 
 use minreq::Error;
 use rand::{thread_rng, Rng};
