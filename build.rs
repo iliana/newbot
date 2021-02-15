@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #![warn(clippy::pedantic)]
-#![allow(clippy::filter_map)]
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::convert::TryInto;
@@ -23,7 +22,7 @@ const FAMILY_MEMBER: &[char] = &[
 
 fn main() -> Result<()> {
     let mut f = File::create(PathBuf::from(env::var_os("OUT_DIR").unwrap()).join("emoji.rs"))?;
-    writeln!(f, "pub(crate) static EMOJI_SETS: &[&[&str]] = &[")?;
+    writeln!(f, "static EMOJI_SETS: &[&[&str]] = &[")?;
     for set in group_emoji()? {
         if set.len() == 1 {
             for emoji in set {

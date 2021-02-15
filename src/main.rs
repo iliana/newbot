@@ -2,15 +2,13 @@
 
 #![warn(clippy::pedantic)]
 
-mod emoji {
-    include!(concat!(env!("OUT_DIR"), "/emoji.rs"));
-}
-
 use minreq::Error;
 use rand::{thread_rng, Rng};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::env;
+
+include!(concat!(env!("OUT_DIR"), "/emoji.rs"));
 
 #[derive(Debug, Serialize)]
 struct NewStatus {
@@ -35,12 +33,12 @@ fn draft_toot(base: &str, live: bool) -> Result<NewStatus, Error> {
         .send()?
         .json()?;
 
-    let n = thread_rng().gen_range(0..(emoji::EMOJI_SETS.len() + emojos.len()));
-    let emoji = if n < emoji::EMOJI_SETS.len() {
-        let set = emoji::EMOJI_SETS[n];
+    let n = thread_rng().gen_range(0..(EMOJI_SETS.len() + emojos.len()));
+    let emoji = if n < EMOJI_SETS.len() {
+        let set = EMOJI_SETS[n];
         Cow::from(set[thread_rng().gen_range(0..set.len())])
     } else {
-        let n = n - emoji::EMOJI_SETS.len();
+        let n = n - EMOJI_SETS.len();
         Cow::from(format!(":{}:", emojos[n].shortcode))
     };
 
