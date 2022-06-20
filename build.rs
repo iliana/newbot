@@ -53,9 +53,10 @@ fn group_emoji() -> Result<BTreeSet<BTreeSet<String>>> {
         Role(char),
         Couple,
         Family,
+        Handshake,
         HoldingHands,
-        Kiss,
         Keycap,
+        Kiss,
         Time,
     }
 
@@ -82,7 +83,12 @@ fn group_emoji() -> Result<BTreeSet<BTreeSet<String>>> {
             .map(parse_char)
             .collect::<Result<String>>()?;
         let first = emoji.chars().next().unwrap();
-        let last = emoji.chars().rev().next().unwrap();
+        let last = emoji
+            .chars()
+            .rev()
+            .filter(|c| *c != '\u{fe0f}')
+            .next()
+            .unwrap();
 
         if matches!(
             first,
@@ -115,10 +121,17 @@ fn group_emoji() -> Result<BTreeSet<BTreeSet<String>>> {
                     }
                 }
             }
+            _ if ['\u{1f930}', '\u{1fac3}', '\u{1fac4}'].contains(&first) => {
+                Group::Role('\u{1fac4}')
+            }
+            _ if ['\u{1f478}', '\u{1f934}', '\u{1fac5}'].contains(&first) => {
+                Group::Role('\u{1fac5}')
+            }
             _ if PERSON.contains(&first) && emoji.contains('\u{200d}') => Group::Role(last),
             "person-role" => Group::Role(first),
             "keycap" => Group::Keycap,
             "time" if ('\u{1f550}'..='\u{1f567}').contains(&first) => Group::Time,
+            "hands" if ['\u{1f91d}', '\u{1faf1}'].contains(&first) => Group::Handshake,
             _ if modifier_bases.contains(&first) => Group::ModifierBase(first),
             _ => Group::Independent(emoji.clone()),
         };
